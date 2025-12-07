@@ -17,7 +17,7 @@ enum CritterType: CaseIterable {
         }
     }
 
-    var pointValue: Int {
+    var points: Int {
         switch self {
         case .bunny: return 1
         case .fox: return 2
@@ -28,9 +28,9 @@ enum CritterType: CaseIterable {
     }
 
     static func randomCritter() -> CritterType {
-        let basic: [CritterType] = [.bunny, .fox, .bear, .raccoon]
+        let commons: [CritterType] = [.bunny, .fox, .bear, .raccoon]
         let rareChance = Int.random(in: 1...15)
-        return rareChance == 1 ? .goldenOwl : basic.randomElement()!
+        return rareChance == 1 ? .goldenOwl : commons.randomElement()!
     }
 }
 
@@ -41,20 +41,17 @@ class GameScene: SKScene {
 
     override func didMove(to view: SKView) {
 
-        // Background image
         let bg = SKSpriteNode(imageNamed: "background")
+        bg.size = size
         bg.position = CGPoint(x: size.width/2, y: size.height/2)
         bg.zPosition = -1
-        bg.size = size
-        bg.alpha = 0.95       // slightly dimmed so critters pop more
         addChild(bg)
 
-        // Score label
         scoreLabel = SKLabelNode(fontNamed: "AvenirNext-Bold")
         scoreLabel.fontSize = 40
         scoreLabel.fontColor = .white
-        scoreLabel.text = "Score: 0"
         scoreLabel.position = CGPoint(x: size.width/2, y: size.height - 80)
+        scoreLabel.text = "Score: 0"
         addChild(scoreLabel)
 
         spawnCritter()
@@ -62,20 +59,19 @@ class GameScene: SKScene {
 
     func spawnCritter() {
         let type = CritterType.randomCritter()
-        let texture = SKTexture(imageNamed: type.imageName)
+        let sprite = SKSpriteNode(imageNamed: type.imageName)
 
-        let sprite = SKSpriteNode(texture: texture)
         sprite.size = CGSize(width: 120, height: 120)
         sprite.position = CGPoint(
             x: CGFloat.random(in: 60...(size.width - 60)),
             y: CGFloat.random(in: 60...(size.height - 160))
         )
-        sprite.userData = ["points": type.pointValue]
+        sprite.userData = ["points": type.points]
 
         addChild(sprite)
 
         sprite.run(.sequence([
-            .wait(forDuration: 1.6),
+            .wait(forDuration: 1.5),
             .removeFromParent()
         ])) { [weak self] in
             self?.spawnCritter()
