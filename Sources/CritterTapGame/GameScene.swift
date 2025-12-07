@@ -28,61 +28,65 @@ enum CritterType: CaseIterable {
     }
 
     static func randomCritter() -> CritterType {
-        // weighted rarity: golden owl is harder to get
-        let normalCritters: [CritterType] = [.bunny, .fox, .bear, .raccoon]
+        let basic: [CritterType] = [.bunny, .fox, .bear, .raccoon]
         let rareChance = Int.random(in: 1...15)
-
-        if rareChance == 1 { return .goldenOwl }
-        return normalCritters.randomElement()!
+        return rareChance == 1 ? .goldenOwl : basic.randomElement()!
     }
 }
 
 class GameScene: SKScene {
 
     private var scoreLabel: SKLabelNode!
-    private var score: Int = 0
+    private var score = 0
 
     override func didMove(to view: SKView) {
-        backgroundColor = .black
-        
+
+        // Background image
+        let bg = SKSpriteNode(imageNamed: "background")
+        bg.position = CGPoint(x: size.width/2, y: size.height/2)
+        bg.zPosition = -1
+        bg.size = size
+        bg.alpha = 0.95       // slightly dimmed so critters pop more
+        addChild(bg)
+
+        // Score label
         scoreLabel = SKLabelNode(fontNamed: "AvenirNext-Bold")
         scoreLabel.fontSize = 40
         scoreLabel.fontColor = .white
-        scoreLabel.position = CGPoint(x: size.width/2, y: size.height - 80)
         scoreLabel.text = "Score: 0"
+        scoreLabel.position = CGPoint(x: size.width/2, y: size.height - 80)
         addChild(scoreLabel)
 
         spawnCritter()
     }
 
     func spawnCritter() {
-        let critterType = CritterType.randomCritter()
-        let texture = SKTexture(imageNamed: critterType.imageName)
+        let type = CritterType.randomCritter()
+        let texture = SKTexture(imageNamed: type.imageName)
 
-        let critter = SKSpriteNode(texture: texture)
-        critter.size = CGSize(width: 120, height: 120)
-        critter.position = CGPoint(
+        let sprite = SKSpriteNode(texture: texture)
+        sprite.size = CGSize(width: 120, height: 120)
+        sprite.position = CGPoint(
             x: CGFloat.random(in: 60...(size.width - 60)),
             y: CGFloat.random(in: 60...(size.height - 160))
         )
-        critter.name = critterType.imageName
-        critter.userData = ["points": critterType.pointValue]
+        sprite.userData = ["points": type.pointValue]
 
-        addChild(critter)
+        addChild(sprite)
 
-        let wait = SKAction.wait(forDuration: 1.6)
-        let remove = SKAction.removeFromParent()
-        critter.run(SKAction.sequence([wait, remove])) { [weak self] in
+        sprite.run(.sequence([
+            .wait(forDuration: 1.6),
+            .removeFromParent()
+        ])) { [weak self] in
             self?.spawnCritter()
         }
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
-        let location = touch.location(in: self)
-        let tappedNodes = nodes(at: location)
+        let pos = touch.location(in: self)
 
-        for node in tappedNodes {
+        for node in nodes(at: pos) {
             if let sprite = node as? SKSpriteNode,
                let points = sprite.userData?["points"] as? Int {
 
