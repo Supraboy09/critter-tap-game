@@ -1,5 +1,4 @@
 // swift-tools-version: 6.0
-
 import PackageDescription
 
 let package = Package(
@@ -11,16 +10,13 @@ let package = Package(
         .executable(name: "critter-tap-game", targets: ["CritterTapGame"])
     ],
     targets: [
-        .target(
+        .executableTarget(
             name: "CritterTapGame",
-            path: "Sources/CritterTapGame",
-            resources: [
-                .process("../Resources")
-            ]
+            path: "Sources/CritterTapGame"
         ),
         .testTarget(
             name: "CritterTapGameTests",
-            path: "Tests"
+            path: "Tests/CritterTapGameTests"
         )
     ]
 )
