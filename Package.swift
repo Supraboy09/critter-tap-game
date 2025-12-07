@@ -10,13 +10,16 @@ let package = Package(
         .executable(name: "critter-tap-game", targets: ["CritterTapGame"])
     ],
     targets: [
-        .executableTarget(
+        .target(
             name: "CritterTapGame",
-            path: "Sources/CritterTapGame"
+            path: "Sources/CritterTapGame",
+            resources: [
+                .process("../Resources")
+            ]
         ),
         .testTarget(
             name: "CritterTapGameTests",
-            path: "Tests/CritterTapGameTests"
+            path: "Tests"
         )
     ]
 )
